@@ -1,50 +1,89 @@
-// Import React and other necessary libraries
 import React, { useState } from 'react';
+import './App.css';
 
-// Main App Component
-function App() {
-  // State to hold the list of tasks
+const App = () => {
   const [tasks, setTasks] = useState([]);
-  // State to hold the new task input value
   const [newTask, setNewTask] = useState('');
 
-  // Handler to add a new task
+  // Adds a new task to the To-Do list
   const addTask = () => {
-    if (newTask.trim() !== '') {
-      setTasks([...tasks, newTask]);
+    if (newTask.trim()) {
+      setTasks([...tasks, { id: Date.now(), text: newTask, status: 'To-Do' }]);
       setNewTask('');
     }
   };
 
-  // Handler to delete a task
-  const deleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, taskIndex) => taskIndex !== index);
-    setTasks(updatedTasks);
+  // Moves a task to the next status
+  const moveTask = (taskId) => {
+    setTasks(tasks.map((task) => 
+      task.id === taskId ? { ...task, status: nextStatus(task.status) } : task
+    ));
+  };
+
+  // Determines the next status of a task, preventing cycling from Completed to To-Do
+  const nextStatus = (currentStatus) => {
+    switch (currentStatus) {
+      case 'To-Do': return 'Undertaking';
+      case 'Undertaking': return 'Completed';
+      case 'Completed': return 'Completed'; // Stay in Completed state
+      default: return 'To-Do';
+    }
+  };
+
+  // Deletes a task
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
+  };
+
+  // Renders tasks by status
+  const renderTasksByStatus = (status) => {
+    return tasks
+      .filter(task => task.status === status)
+      .map((task) => (
+        <li key={task.id}>
+          {task.text}
+          {status !== 'Completed' && (
+            <button onClick={() => moveTask(task.id)}>Move to Next</button>
+          )}
+          <button onClick={() => deleteTask(task.id)}>Delete</button>
+        </li>
+      ));
+  };
+
+  // Handles the Enter key event to add tasks
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      addTask();
+    }
   };
 
   return (
     <div className="App">
       <h1>To-Do List</h1>
-      <div>
+      <div className="task-input">
         <input 
           type="text" 
           placeholder="Add a new task" 
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
+          onKeyDown={handleKeyDown} // Allows you to use the enter key to submit new tasks rather than having to press the button.
         />
-        <button onClick={addTask}>Add</button>
+        <button onClick={addTask}>Add/Hit 'Enter'</button>
       </div>
-      <ul>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            {task} 
-            <button onClick={() => deleteTask(index)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <div className="task-section">
+        <h2>To-Do</h2>
+        <ul>{renderTasksByStatus('To-Do')}</ul>
+      </div>
+      <div className="task-section">
+        <h2>Undertaking</h2>
+        <ul>{renderTasksByStatus('Undertaking')}</ul>
+      </div>
+      <div className="task-section">
+        <h2>Completed</h2>
+        <ul>{renderTasksByStatus('Completed')}</ul>
+      </div>
     </div>
   );
 }
 
-// Export the App component as the default export
 export default App;
