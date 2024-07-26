@@ -41,7 +41,7 @@ const App = () => {
       .filter(task => task.status === status)
       .map((task) => (
         <li key={task.id}>
-          {task.text}
+          <span className="task-text">{task.text}</span>
           {status !== 'Completed' && (
             <button onClick={() => moveTask(task.id)}>Move to Next</button>
           )}
@@ -59,6 +59,7 @@ const App = () => {
 
   return (
     <div className="App">
+      <img src="./assets/background2.jpg" />
       <h1>To-Do List</h1>
       <div className="task-input">
         <input 
@@ -66,9 +67,9 @@ const App = () => {
           placeholder="Add a new task" 
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
-          onKeyDown={handleKeyDown} // Allows you to use the enter key to submit new tasks rather than having to press the button.
+          onKeyDown={handleKeyDown}
         />
-        <button onClick={addTask}>Add/Hit 'Enter'</button>
+        <button onClick={addTask}>Add/Enter</button>
       </div>
       <div className="task-section">
         <h2>To-Do</h2>
